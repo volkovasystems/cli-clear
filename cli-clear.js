@@ -43,23 +43,26 @@
 	@include:
 	@end-include
 */
-var cliClear = function cliClear( CLI ){
-    this.on( CLI.EVENT.LINE_STRING_MODIFIED,
-        function onLineStringModified( line, commandLineInterface ){
-            if( CLEAR_COMMAND_PATTERN.test( line ) ){
-                var promptLine = line.match( CLEAR_COMMAND_PATTERN )[ 1 ] || "";
+var cliClear = function cliClear( CLI, specificNamespace ){
 
-                var ANSIClearCommandLine = [
-                    "\u001B[2J",
-                    "\u001B[;f",
-                    "\u001B[c",
-                    promptLine,
-                    "\r"
-                ].join( "" );
+	CLI.SESSION.CLI_CLEAR = "cli-clear";
 
-                commandLineInterface.write( ANSIClearCommandLine );
-            }
-        } );
+	this.listenToEvent( CLI.EVENT.LINE_STRING_MODIFIED, specificNamespace,
+		function cliClear( line, commandLineInterface ){
+			if( CLEAR_COMMAND_PATTERN.test( line ) ){
+				var promptLine = line.match( CLEAR_COMMAND_PATTERN )[ 1 ] || "";
+
+				var ANSIClearCommandLine = [
+					"\u001B[2J",
+					"\u001B[;f",
+					"\u001B[c",
+					promptLine,
+					"\r"
+				].join( "" );
+
+				commandLineInterface.write( ANSIClearCommandLine );
+			}
+		} );
 };
 
 const CLEAR_COMMAND_PATTERN = /^\@clear(?:\:(.+)|$)/;
